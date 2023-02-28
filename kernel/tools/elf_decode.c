@@ -2,6 +2,7 @@
 #include "tools/elf_decode.h"
 
 #include "lib/stdio.h"
+#include "lib/error.h"
 
 
 
@@ -67,9 +68,6 @@ void get_elf_data(Elf64_Ehdr *elf){
             // 段起始位置
             seg_start_addr = (PhysAddr)ph->p_vaddr;
             seg_end_addr = (PhysAddr)((u8 *)seg_start_addr + ph->p_memsz);
-
-            // 装载程序到相应页面中
-            mm_map_for_mmu();
         }
 
         // ph指向下一个段头表

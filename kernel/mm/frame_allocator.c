@@ -63,7 +63,7 @@ PhysPageNum frame_allocator_alloc( void ){
         *pa = 0;
     }
 
-    printk("[mm/frame_allocator.c] alloc ppn = 0x%x\n", ret);
+    // printk("[mm/frame_allocator.c] alloc ppn = 0x%x\n", ret);
     return ret;
 }
 

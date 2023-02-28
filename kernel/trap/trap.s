@@ -6,7 +6,7 @@
     ld x\n, \n*8(sp)
 .endm
     .align 2
-    .section .text
+    .section .text.trampoline
     .globl __alltraps
     .globl __restore
 __alltraps:
@@ -34,7 +34,7 @@ __alltraps:
     ld t0, 34*8(sp)
     # load trap_handler into t1
     ld t1, 36*8(sp)
-    # move to kernel_sp  应用内核栈顶
+    # move to kernel_sp 
     ld sp, 35*8(sp)
     # switch to kernel space
     csrw satp, t0

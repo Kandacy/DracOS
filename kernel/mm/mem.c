@@ -41,41 +41,10 @@ i64 vPPN_cmp(const void* elemAddr1,const void* elemAddr2) {
 
 
 
-/**
- *  @brief: 将相应地址空间建立映射
- *  @param:
- *      pt: 对应的页表管理项
- *      pa_start: 地址空间起始地址
- *      pa_end: 地址空间中止地址
- *      ext_pte_flags：除V位以外的其他标志位
- *      map_type: 映射类型
- *  @return: 
- */
-void mm_map_for_mmu(PageTable *pt, PhysAddr pa_start, PhysAddr pa_end, u64 ext_pte_flags, u64 map_type){
-    // 解析PPN
-    PhysPageNum ppn_start = pa_to_ppn(pa_start, ADDR_FLOOR);
-    PhysPageNum ppn_end = pa_to_ppn(pa_end, ADDR_FLOOR);
-    PhysPageNum ppn_target;
-    // 将对应地址空间的ppn和vpn建立恒等映射
-    for(u64 i = ppn_start; i <= ppn_end; i ++){
-        /* 确定最终ppn */
-        if(map_type == MAP_TYPE_IDENTICAL){ // 恒等映射
-            ppn_target = i;
-        }else if(map_type == MAP_TYPE_FRAMED){ // 新建页面
-            ppn_target = frame_allocator_alloc();
-            printk("[mm/mem.c] new frame = 0x%x\n", ppn_target);
-        }
-        // 建立PPN和VPN的映射
-        pt_map_ppn_vpn(pt, ppn_target, i, ext_pte_flags);
-    }
-}
-
-
-
-void test(){
-    printk("[mem.c] *0x80201000 = 0x%x\n", *((u64*)0x80201000));
-    printk("[mem.c] *0x7ffffff000 = 0x%x\n", *((u8*)0x7fFFFFf000));
-}
+// void test(){
+//     printk("[mem.c] *0x80201000 = 0x%x\n", *((u64*)0x80201000));
+//     printk("[mem.c] *0x7ffffff000 = 0x%x\n", *((u8*)0xffffffffFFFFf000));
+// }
 
 /**
  *  @brief: 初始化MMU
@@ -89,7 +58,7 @@ void mm_init( void ){
     memory_set_kernel_new(&kernel_ms);
     w_satp( ((u64)0x8 << 60) | (u64)kernel_ms.page_table.root_ppn);
     asm volatile("sfence.vma");
-    test();
+    printk("[mm/mem.c] mm_init ok\n");
 }
 
 

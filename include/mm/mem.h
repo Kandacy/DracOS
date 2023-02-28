@@ -62,8 +62,10 @@ u64 get_user_stack_top( u64 app_id );
 
 
 /* 跳板页面虚拟地址（位于虚拟地址最高处） */
-#define TRAMPOLINE  ((VirtAddr)((u64)0x7fFFFFFfff - PAGE_SIZE + 1))
-
+#define TRAMPOLINE         ((VirtAddr)((u64)0x7fFFFFFfff - PAGE_SIZE + 1))
+#define TRAMPOLINE_FULL    (0xffffff8000000000 | TRAMPOLINE)
+#define TRAP_CONTEXT       (TRAMPOLINE - PAGE_SIZE)
+#define TRAP_CONTEXT_FULL  (0xffffff8000000000 | TRAP_CONTEXT)
 
 
 
@@ -97,7 +99,7 @@ typedef struct VpnRange{
 /* 逻辑段（具有相同权限的段，虚拟地址连续） */
 typedef struct MapArea{
     VpnRange vpn_range;
-    MapType map_type;
+    MapType map_type; // 冗余？
     MapPermission map_premission;
 }MapArea;
 
@@ -111,6 +113,11 @@ typedef struct MemorySet{
 
 
 
+extern MemorySet kernel_ms;
+
+
+
+
 /* vector相关 */
 i64 vPPN_cmp(const void* elemAddr1,const void* elemAddr2);
 
@@ -118,7 +125,6 @@ i64 vPPN_cmp(const void* elemAddr1,const void* elemAddr2);
 
 /* mm/mem.c */
 void mm_init( void );
-void mm_map_for_mmu(PageTable *pt, PhysAddr pa_start, PhysAddr pa_end, u64 ext_pte_flags, u64 map_type);
 
 
 
@@ -146,6 +152,7 @@ PageTableEntry pte_new(PhysPageNum ppn, u64 flags);
 PhysPageNum pte_get_ppn(PageTableEntry pte);
 void pt_map_ppn_vpn(PageTable *pt, PhysPageNum ppn, VirtPageNum vpn, u64 ext_pte_flag);
 void pt_unmap_ppn_vpn(PageTable *pt, VirtPageNum vpn);
+PhysAddr pt_get_pa_from_vpn(PageTable *pt, VirtPageNum vpn);
 
 
 
@@ -153,6 +160,7 @@ void pt_unmap_ppn_vpn(PageTable *pt, VirtPageNum vpn);
 void memory_set_init(MemorySet* ms);
 void memory_set_map_trampoline(MemorySet *ms);
 void memory_set_kernel_new(MemorySet* ms);
+void memory_set_task_init_identical(MemorySet* ms, VirtAddr va_start, VirtAddr va_end, VirtAddr user_stack_low);
 void memory_set_from_elf(MemorySet* ms, u8* elf_data);
 
 
